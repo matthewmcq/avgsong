@@ -176,7 +176,7 @@ def genre_weighting(track, genre_weights):
 def feature_weighting(track, avg_features):
     weight = 0
     for feature in track.audio_features:
-        weight += abs(track.audio_features[feature] - avg_features[feature])
+        weight += (track.audio_features[feature] - avg_features[feature])**2
     track.feature_weighting = weight
     #print(weight)
     return weight
@@ -221,5 +221,5 @@ def print_all_closest(headers):
     playlists = find_all_closest(headers)
     ret = ''
     for playlist in playlists:
-        ret += "Playlist: " + playlist.playlist_name + " - Avg Song: " + playlist.Tracks[0].song_name + " by " + playlist.Tracks[0].artist + "\n"
+        ret += "Playlist: " + playlist.playlist_name + " - Avg Song: " + playlist.Tracks[0].song_name + " by " + playlist.Tracks[0].artist + '\n'
     return ret
