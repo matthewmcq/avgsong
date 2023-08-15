@@ -53,11 +53,9 @@ async def callback(code):
     #data = Queries(headers, years_dict)                # <-- REQUESTS ARE MADE HERE
     #data.albums_to_csv()
     #return HTMLResponse(content=f'<h1>Success!</h1>')
-    closest = app_playlist.find_closest(headers)
-    print(closest)
-    name = app_playlist.find_name(closest[0].track_id, headers)
-    print(name)
-    return HTMLResponse(content=f'<h1>Success!</h1><p>{name}</p>')
+    top_songs = app_playlist.print_all_closest(headers)
+    return HTMLResponse(content=f'<h1>Success!</h1><p>{top_songs}</p>')
+
 
 
 def main():
