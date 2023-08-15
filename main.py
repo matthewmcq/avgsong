@@ -55,7 +55,7 @@ async def callback(code):
     #data.albums_to_csv()
     #return HTMLResponse(content=f'<h1>Success!</h1>')
     top_songs = app_playlist.print_all_closest(headers)
-    return RedirectResponse(url=f'http://localhost:3000/top200?data={top_songs}', status_code=303)
+    return RedirectResponse(url=f'http://localhost:3000/youravg?data={top_songs}', status_code=303)
 
 
 
