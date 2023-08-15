@@ -9,6 +9,7 @@ from queries import Queries
 #Get secret key and make call to API
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
+from fastapi.responses import RedirectResponse
 import requests
 import uvicorn
 import app_playlist
@@ -54,7 +55,7 @@ async def callback(code):
     #data.albums_to_csv()
     #return HTMLResponse(content=f'<h1>Success!</h1>')
     top_songs = app_playlist.print_all_closest(headers)
-    return HTMLResponse(content=f'<h1>Success!</h1><p>{top_songs}</p>')
+    return RedirectResponse(url=f'http://localhost:3000/top200?data={top_songs}', status_code=303)
 
 
 

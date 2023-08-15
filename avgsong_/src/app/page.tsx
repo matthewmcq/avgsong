@@ -6,11 +6,8 @@ import YourAvg from '../pages/youravg';
 
 const AppPage: React.FC = () => {
   return (
-    <Layout>
       <HomePage />
-      <Top200 />
-      <YourAvg />
-    </Layout>
+    
   );
 };
 
