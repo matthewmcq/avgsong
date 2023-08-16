@@ -16,7 +16,7 @@
   }
 }
 
-body {
+/* body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
@@ -24,4 +24,41 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+} */
+
+.MuiButton-root {
+  text-transform: lowercase;
+  background-color: #1e293b;
+}
+/* Navbar styles */
+.app-bar {
+  background-color: #1e293b;
+}
+
+.app-bar h5 {
+  display: flex;
+  align-items: center;
+}
+
+.app-bar h5 span {
+  margin-right: 5px;
+}
+
+.app-bar h5 .avg {
+  color: #e5e5e5;
+}
+
+.app-bar h5 .song {
+  color: #0d9488;
+}
+
+/* Navbar link styles */
+.app-bar nav a {
+  color: #e5e5e5;
+  margin: 0 10px;
+  text-decoration: none;
+}
+
+.app-bar nav a:hover {
+  color: #0d9488;
 }

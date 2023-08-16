@@ -192,4 +192,53 @@ def get_top_songs(df):
     #print(top_songs)
     return top_songs
 
-print(get_top_songs(dataframe))
+#print(get_top_songs(dataframe))
+
+def dump_top5_to_json(df):
+    df = init_normal(df)
+    df = get_song_closeness(df)
+    # Sort the DataFrame by 'year' and 'song_closeness'
+    df_sorted = df.sort_values(by=['year', 'song_closeness'], ascending=[True, False])
+
+    # Group the DataFrame by 'year' and get the top 5 entries for each group
+    top_songs_by_year = df_sorted.groupby('year').head(5)
+
+    # Convert the grouped DataFrame to a dictionary of JSON objects
+    json_data = {
+        year: group[['track_name','artist_name', 'song_closeness']].to_dict(orient='records')
+        for year, group in top_songs_by_year.groupby('year')
+    }
+
+    # Write the JSON data to separate files for each year
+    for year, data in json_data.items():
+        filename = f'top5_songs_{year}.json'
+        with open(filename, 'w') as f:
+            f.write(pd.Series(data).to_json(orient='records', lines=True))
+
+    return json_data
+
+def write_top_songs_to_json(df, output_filename):
+    df = init_normal(df)
+    #print(df.head(5))
+    df = get_song_closeness(df)
+    # Order df by song closeness
+    df = df.sort_values(by=['song_closeness'])
+
+    # Get top 5 songs by year
+    top_songs_by_year = {}
+    years = df['year'].unique()
+    
+    for year in years:
+        df_year = df[df['year'] == year]
+        top_songs_by_year[year] = [
+            df_year.iloc[i]['track_name'] + " by " + df_year.iloc[i]['artist_name']
+            for i in range(min(5, len(df_year)))
+        ]
+    
+    # Write the top songs by year to a JSON file
+    with open(output_filename, 'w') as json_file:
+        json.dump(top_songs_by_year, json_file, indent=4)
+
+#output_filename = 'top_songs_by_year.json'
+#write_top_songs_to_json(dataframe, output_filename)
+#print(f"JSON data written to {output_filename}")

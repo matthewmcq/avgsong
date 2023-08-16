@@ -1,7 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import styles from '/styles/styles.module.css';
-
-const topSongsData: Record<string, string[]> = {
+{
     "2019": [
       "JUMP (feat. YoungBoy Never Broke Again) by DaBaby",
       "Every Single Time by Jonas Brothers",
@@ -60,27 +57,3 @@ const topSongsData: Record<string, string[]> = {
     ]
   }
   
-
-  const Top200: React.FC = () => {
-    const sortedYears = Object.keys(topSongsData).sort((a, b) => Number(b) - Number(a));
-  
-    return (
-      <div>
-        <h3>Top 200 Songs</h3>
-        <div className={styles.columnContainer}>
-          {sortedYears.map((year, index) => (
-            <div className={styles.column} key={year}>
-              <h4>{year}</h4>
-              <ul>
-                {topSongsData[year].map((song, songIndex) => (
-                  <li key={songIndex}>{song}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-  
-  export default Top200;

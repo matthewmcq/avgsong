@@ -1,23 +1,38 @@
-
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Button, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router'; // Import the router hook
+import styles from '/styles/styles.module.css';
+
+interface PlaylistItem {
+  playlist_name: string;
+  song_name: string;
+  artist: string;
+  image_url: string;
+}
 
 const YourAvg: React.FC = () => {
   const router = useRouter(); // Initialize the router
-  const [data, setData] = useState<string | null>(null);
+  const [playlistData, setPlaylistData] = useState<PlaylistItem[] | null>(null);
 
   useEffect(() => {
-    // Extract the data query parameter from the URL
-    const { data: authData } = router.query;
-    if (authData) {
-      setData(authData as string);
+    // Extract the JSON data from the URL query parameter
+    const jsonData = router.query.data;
+
+    if (jsonData) {
+      // Ensure we're working with a single string, not an array
+      const jsonDataString = Array.isArray(jsonData) ? jsonData[0] : jsonData;
+
+      // Decode and parse the JSON data
+      const decodedJsonData = decodeURIComponent(jsonDataString);
+      setPlaylistData(JSON.parse(decodedJsonData) as PlaylistItem[]);
     }
   }, [router.query]);
+
   const handleAuthenticate = () => {
     // Redirect to the FastAPI authentication endpoint
     window.location.href = 'http://localhost:8000/';
   };
+
   return (
     <Box
       display="flex"
@@ -28,26 +43,39 @@ const YourAvg: React.FC = () => {
       textAlign="center"
     >
       <Typography variant="h3" gutterBottom>
-        Your Averages
+        your 
+        <span style={{ color: '#64748b' }}> avgs</span>
       </Typography>
       <Typography variant="subtitle1" color="textSecondary">
-        These are the average songs on your playlists:
+        get the average song for each of your playlists
       </Typography>
-      {data ? (
-        <div>
-          <p>{data}</p>
-          {/* Display the data received from the callback */}
-        </div>
-      ) : (
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleAuthenticate}
-          style={{ marginTop: '20px' }}
-        >
-          Authenticate with Spotify
-        </Button>
-      )}
+      {playlistData ? (
+  <div className={styles.columns}>
+    {playlistData.map((playlist, index) => (
+      <div className={styles.column} key={index}>
+        <h4>{playlist.playlist_name}</h4>
+        <img
+          src={playlist.image_url}
+          alt={playlist.playlist_name}
+          className={`${styles.image} ${styles.imageResize}`}
+          style={{ maxWidth: '100%', height: 'auto' }}
+        />
+        <p>
+          {playlist.song_name} by {playlist.artist}
+        </p>
+      </div>
+    ))}
+  </div>
+) : (
+  <Button
+    variant="contained"
+    color="primary"
+    onClick={handleAuthenticate}
+    style={{ marginTop: '20px' }}
+  >
+    authenticate with spotify
+  </Button>
+)}
     </Box>
   );
 };

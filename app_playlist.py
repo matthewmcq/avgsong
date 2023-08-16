@@ -12,6 +12,8 @@ class PlaylistAPI():
     headers = None
     playlist_id = None
     playlist_name = None
+    image = None
+
     def __init__(self, headers, playlist_id) -> None:
         self.headers = headers
         self.playlist_id = playlist_id
@@ -20,6 +22,11 @@ class PlaylistAPI():
         response = requests.get("https://api.spotify.com/v1/playlists/" + self.playlist_id, headers=self.headers)
         playlist = response.json()
         self.playlist_name = playlist["name"]
+        ## Also gets image:
+        try:
+            self.image = playlist["images"][0]["url"]
+        except:
+            self.image = "https://www.freeiconspng.com/uploads/no-image-icon-4.png"
         return playlist["name"]
 
     def closest_song_to_avg(self):
@@ -222,4 +229,16 @@ def print_all_closest(headers):
     ret = ''
     for playlist in playlists:
         ret += "Playlist: " + playlist.playlist_name + " - Avg Song: " + playlist.Tracks[0].song_name + " by " + playlist.Tracks[0].artist + '\n'
+    return ret
+
+def return_all_closest_as_json(headers):
+    playlists = find_all_closest(headers)
+    ret = []
+    for playlist in playlists:
+        ret.append({
+            "playlist_name": playlist.playlist_name,
+            "song_name": playlist.Tracks[0].song_name,
+            "artist": playlist.Tracks[0].artist,
+            "image_url": playlist.image
+        })
     return ret
