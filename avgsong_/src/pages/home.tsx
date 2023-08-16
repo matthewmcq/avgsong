@@ -1,10 +1,8 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
-import { useRouter } from 'next/router';
+
 
 const HomePage: React.FC = () => {
-  const router = useRouter();
-
   return (
     <Box
       display="flex"
@@ -20,24 +18,18 @@ const HomePage: React.FC = () => {
         <span style={{ color: '#0d9488' }}>song</span>
       </Typography>
       <Typography variant="subtitle1" color="textSecondary">
-        explore average songs of billboard's top 200 and your own playlists...
+        explore the average songs of billboard's top 200 and your own playlists...
       </Typography>
-      <div style={{ marginTop: '20px', display: 'flex', gap: '10px', alignItems: 'stretch' }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => router.push('/top200')}
-        >
-           top 200 
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => router.push('/youravg')}
-        >
-          your avgs
-        </Button>
+      <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}></div>
+      <Button variant="contained" color="primary" href="/top200" style={{ marginTop: '20px' }}>
+        top albums
+      </Button>
+      <Button variant="contained" color="primary" href="/youravg" style={{ marginTop: '20px' }}>
+        your playlists
+      </Button>
       </div>
+
     </Box>
   );
 };

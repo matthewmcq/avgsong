@@ -1,0 +1,31 @@
+/* Layout.module.css */
+.avgText {
+    color: #e5e5e5;
+  }
+  
+  .songText {
+    color: #0d9488;
+  }
+  
+  .textWrapper {
+    text-decoration: none;
+  }
+  
+  .scrollAnimation {
+    transition: color 0.3s ease;
+  }
+  
+  .scrollAnimation:hover {
+    color: #0d9488;
+  }
+  
+  .navLink {
+    vertical-align: middle;
+    margin-left: 10px;
+  }
+
+  
+  
+  
+  
+  

@@ -42,11 +42,16 @@ def get_access_token(auth_code: str):
 async def auth():
     scope = ["playlist-modify-private", "playlist-modify-public", "playlist-read-private", "playlist-read-collaborative"]
     auth_url = f"https://accounts.spotify.com/authorize?response_type=code&client_id={client_id}&redirect_uri={redirect_uri}&scope={' '.join(scope)}"
-    return HTMLResponse(content=f'<a href="{auth_url}">Authorize</a>')
+    return HTMLResponse(content=f'<a href="{auth_url}">Authorize</a>') #Can probably change this to a redirect response and just yoink the url
 
 @app.get("/callback")
 async def callback(code):
     headers = get_access_token(code)
+    
+    #Get Json of top playlists
+    #processing.write_song_data_to_json('all_song_data.json', headers)
+
+
     top_songs = app_playlist.return_all_closest_as_json(headers)
     
     # Convert the JSON data to a URL-encoded string
@@ -55,6 +60,7 @@ async def callback(code):
     # Redirect back to your Next.js app with the JSON data as a query parameter
     redirect_url = f'http://localhost:3000/youravg?data={json_data_encoded}'
     return RedirectResponse(url=redirect_url, status_code=303)
+
 
 def main():
     uvicorn.run(app)

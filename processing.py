@@ -18,6 +18,7 @@ dataframe = pd.DataFrame(data=data[1:,0:],    # values
 print(dataframe.columns)
 #print(dataframe.head(5))
 
+
 #years = dataframe['year'].unique()
 #print(years)
 # Calculate most frequent genres by year (split if multiple)
@@ -242,3 +243,34 @@ def write_top_songs_to_json(df, output_filename):
 #output_filename = 'top_songs_by_year.json'
 #write_top_songs_to_json(dataframe, output_filename)
 #print(f"JSON data written to {output_filename}")
+
+def get_song_data(song_id, headers):
+    url = f'https://api.spotify.com/v1/tracks/{song_id}'
+    response = requests.get(url, headers=headers)
+    json_response = response.json()
+    return json_response
+
+
+def write_song_data_to_json(output_filename, headers):
+    dataframe = pd.DataFrame(data=data[1:,0:],    # values
+                  columns=data[0,0:])  # 1st row as the column names
+    dataframe = init_normal(dataframe)
+    #print(df.head(5))
+    dataframe = get_song_closeness(dataframe)
+    # Order df by song closeness
+    dataframe = dataframe.sort_values(by=['song_closeness'])
+
+    # Get top 5 songs by year
+    top_songs_all_data = {}
+    years = dataframe['year'].unique()
+    
+    for year in years:
+        df_year = dataframe[dataframe['year'] == year]
+        top_songs_all_data[year] = [
+            get_song_data(df_year.iloc[i]['track_id'], headers)
+            for i in range(min(5, len(df_year)))
+        ]
+    
+    # Write the top songs by year to a JSON file
+    with open(output_filename, 'w') as json_file:
+        json.dump(top_songs_all_data, json_file, indent=4)

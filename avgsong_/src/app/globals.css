@@ -25,6 +25,29 @@
     )
     rgb(var(--background-start-rgb));
 } */
+.scroll-animation {
+  animation: scrollAnimation 10s linear infinite;
+}
+
+@keyframes scrollAnimation {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Change text color on hover for the elements with the class */
+.text-color-change {
+  color: #e5e5e5;
+  transition: color 0.3s;
+}
+
+.text-color-change:hover {
+  color: #0d9488;
+}
+
 
 .MuiButton-root {
   text-transform: lowercase;

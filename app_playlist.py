@@ -14,6 +14,7 @@ class PlaylistAPI():
     playlist_name = None
     image = None
 
+
     def __init__(self, headers, playlist_id) -> None:
         self.headers = headers
         self.playlist_id = playlist_id
@@ -32,17 +33,39 @@ class PlaylistAPI():
     def closest_song_to_avg(self):
         if self.Tracks != []:
             return self.Tracks[0]
-
+        
+    def playlist_genres(self):
+        genres = {}
+        for track in self.Tracks:
+            for genre in track.genres:
+                if genre in genres:
+                    genres[genre] += 1
+                else:
+                    genres[genre] = 1
+        return genres
 
 class TracksPlaylist(Tracks):
     genre_weighting = 0
     feature_weighting = 0
     overall_weighting = 0
     audio_features = {}
+    album_image = None
+
     def set_audio_features(self, audio_features):
         self.audio_features = audio_features
         return super().set_audio_features(audio_features)
+    
+    def set_album_image(self, image):
+        self.album_image = image
 
+
+def get_track_album_image(track_id, headers):
+    response = requests.get("https://api.spotify.com/v1/tracks/" + track_id, headers=headers)
+    track = response.json()
+    try:
+        return track["album"]["images"][0]["url"]
+    except:
+        return "https://www.freeiconspng.com/uploads/no-image-icon-4.png"
 
 def get_multiple_audio_features(track_ids, headers):
     response = requests.get("https://api.spotify.com/v1/audio-features/?ids=" + ",".join(track_ids), headers=headers)
@@ -61,7 +84,7 @@ def set_multiple_audio_features(tracks, audio_features):
 
 def get_playlists(headers):
     #Limit=3 playlists for testing
-    response = requests.get("https://api.spotify.com/v1/me/playlists?limit=3", headers=headers)
+    response = requests.get("https://api.spotify.com/v1/me/playlists?limit=4", headers=headers)
     playlists = response.json()
     return playlists
 
@@ -98,8 +121,14 @@ def collect_data(headers):
     playlists = get_playlists(headers)
     playlist_ids = [playlist["id"] for playlist in playlists["items"]]
     playlist_names = [playlist["name"] for playlist in playlists["items"]]
+    playlist_num_tracks = [playlist["tracks"]["total"] for playlist in playlists["items"]]
     playlists = []
     for i in range(len(playlist_ids)):
+        if playlist_names[i] == "Liked Songs":
+            continue
+        # If playlist is fewer than three songs, skip it
+        if playlist_num_tracks[i] < 3:
+            continue
         playlist = PlaylistAPI(headers, playlist_ids[i])
         playlist.get_name()
         playlist.Tracks = process_playlist(headers, playlist_ids[i])
@@ -174,7 +203,7 @@ def weight_genres(tracks):
 def genre_weighting(track, genre_weights):
     weight = 0
     for genre in track.genres:
-        weight += genre_weights[genre] / len(track.genres)
+        weight += genre_weights[genre] 
     track.genre_weighting = weight
     return weight
 
@@ -193,6 +222,7 @@ def find_closest(playlist):
     average_features = avg_features(playlist.Tracks)
     #print(average_features)
     genre_weights = weight_genres(playlist.Tracks)
+    playlist.genre_weights = genre_weights
     for track in playlist.Tracks:
         genre_weighting(track, genre_weights)
         feature_weighting(track, average_features)
@@ -235,10 +265,23 @@ def return_all_closest_as_json(headers):
     playlists = find_all_closest(headers)
     ret = []
     for playlist in playlists:
+        #This could be optimized and done during weight genres
+        genres_to_copy = playlist.genre_weights
+        genres = genres_to_copy.copy()
+        ### Top three genres: 
+        max_genres = []
+        total_genre_count = len(genres)
+        for i in range(3):
+            max_genres.append(max(genres, key=genres.get))
+            genres.pop(max_genres[i])
+        total_genre_count = len(genres)
         ret.append({
             "playlist_name": playlist.playlist_name,
             "song_name": playlist.Tracks[0].song_name,
             "artist": playlist.Tracks[0].artist,
-            "image_url": playlist.image
+            "top_track_image": get_track_album_image(playlist.Tracks[0].track_id, headers),
+            "image_url": playlist.image,
+            "playlist_genre_count": total_genre_count,
+            "playlist_top_genres": json.dumps(max_genres)
         })
     return ret

@@ -1,0 +1,58 @@
+/* top200.module.css */
+.yearContainer {
+    margin: 20px;
+  }
+  
+  .albumContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .imageContainer {
+    position: relative;
+    flex: 1;
+  }
+  
+  .imageContainer.hovered {
+    z-index: 1;
+  }
+  
+  .albumImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.3s;
+  }
+  
+  .albumImage.hovered {
+    transform: scale(1.1);
+  }
+  
+  .albumOverlay {
+    position: absolute;
+    bottom: -100%; /* Slide up */
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    transition: bottom 0.3s;
+  }
+  
+  .imageContainer.hovered .albumOverlay {
+    bottom: 0;
+  }
+  
+  .yearWrapper {
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+    color: #0d9488;
+    border-radius: 8px;
+    object-fit: cover;
+  }
