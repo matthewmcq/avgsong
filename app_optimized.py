@@ -211,8 +211,18 @@ def process_playlists(playlists):
         
 def normalize_audio_features():
     """Should normalize the audio features of all songs"""
-    max_audio_features = {'acousticness' : 0,  'energy': 0, 'instrumentalness': 0, 'liveness': 0, 'loudness': 0, 'speechiness': 0, 'tempo': 0, 'valence': 0, 'tempo': 0, 'key' : 0, 'mode' : 0, 'time_signature' : 0, 'duration_ms': 0}
-    min_audio_features = {'acousticness' : 0,  'energy': 0, 'instrumentalness': 0, 'liveness': 0, 'loudness': 0, 'speechiness': 0, 'tempo': 0, 'valence': 0, 'tempo': 0, 'key' : 0, 'mode' : 0, 'time_signature' : 0, 'duration_ms': 0}
+    max_audio_features = {
+            'acousticness': 0, 'energy': 0, 'instrumentalness': 0,
+            'liveness': 0, 'loudness': 0, 'speechiness': 0, 'tempo': 0, 
+            'valence': 0, 'tempo': 0, 'key': 0, 'mode': 0, 
+            'time_signature': 0, 'duration_ms': 0
+        }
+    min_audio_features = {
+            'acousticness': 0, 'energy': 0, 'instrumentalness': 0,
+            'liveness': 0, 'loudness': 0, 'speechiness': 0, 'tempo': 0, 
+            'valence': 0, 'tempo': 0, 'key': 0, 'mode': 0, 
+            'time_signature': 0, 'duration_ms': 0
+        }
     for track_id in track_ids_to_audio_features.keys():
         track_audio_features = track_ids_to_audio_features[track_id]
         for feature in track_audio_features.keys():
