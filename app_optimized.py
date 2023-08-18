@@ -1,6 +1,5 @@
 import requests
 import json
-import numpy as np
 
 class Playlist:
     def __init__(self, headers, playlist_id) -> None:
@@ -50,7 +49,6 @@ class Playlist:
         self.top_song = top_song
         print("Top song for playlist " + self.playlist_name + " is " + track_ids_to_names[self.top_song])
         
-
 track_ids_to_playlists = {}
 track_ids_to_artists = {}
 artist_ids_to_genres = {}
@@ -98,7 +96,6 @@ def get_playlist_tracks(headers: dict, playlists_response: dict):
         except:
             print("Error getting tracks for playlist" + playlist_id)
             continue
-    
         playlist_ids_to_playlist_objects[playlist_id] = this_playlist
         playlists_to_process.append(this_playlist)
     return playlists_to_process, track_ids_to_find
@@ -126,7 +123,6 @@ def find_track_info(headers: dict, track_ids_to_find: set):
                 #print(track_name)
                 # Add it to the track_ids_to_images hashmap
                 track_ids_to_images[track_id] = track_image
-
                 # Get the artist id
                 artist_id = track["album"]["artists"][0]["id"]
                 # Add it to the artist_ids_to_track_ids hashmap
@@ -137,7 +133,6 @@ def find_track_info(headers: dict, track_ids_to_find: set):
                 artist_ids_to_find.add(artist_id)
                 # Add the artist to the track_ids_to_artists hashmap
                 track_ids_to_artists[track_id] = artist_id
-
             except:
                 print("Error getting track info")
                 continue
@@ -187,14 +182,10 @@ def find_audio_features(headers: dict, track_ids_to_find: set):
                     features_to_add[key] = feature[key]
             track_ids_to_audio_features[track_id] = features_to_add
             
-
 ### PROCESS DATA ###
 
 def process_playlists(playlists):
     """Should calculate all the genre info and playlist audio features by iterating through the track_ids_to_playlists hashmap"""
-    # for track_id in track_ids_to_playlists.keys():
-    #     for playlist_id in track_ids_to_playlists[track_id]:
-    #         playlist_ids_to_playlist_objects[playlist_id].tracks.append(track_id)
     for playlist in playlists:
         #print(playlist.tracks)
         for track_id in playlist.tracks:
@@ -217,13 +208,11 @@ def process_playlists(playlists):
         playlist.total_genre_count = len(playlist.tracks)
         playlist.top_genres = sorted(playlist.genres, key=playlist.genres.get, reverse=True)[:3]
     return playlists
-
         
 def normalize_audio_features():
     """Should normalize the audio features of all songs"""
     max_audio_features = {'acousticness' : 0,  'energy': 0, 'instrumentalness': 0, 'liveness': 0, 'loudness': 0, 'speechiness': 0, 'tempo': 0, 'valence': 0, 'tempo': 0, 'key' : 0, 'mode' : 0, 'time_signature' : 0, 'duration_ms': 0}
     min_audio_features = {'acousticness' : 0,  'energy': 0, 'instrumentalness': 0, 'liveness': 0, 'loudness': 0, 'speechiness': 0, 'tempo': 0, 'valence': 0, 'tempo': 0, 'key' : 0, 'mode' : 0, 'time_signature' : 0, 'duration_ms': 0}
-   
     for track_id in track_ids_to_audio_features.keys():
         track_audio_features = track_ids_to_audio_features[track_id]
         for feature in track_audio_features.keys():
@@ -238,8 +227,6 @@ def normalize_audio_features():
             track_ids_to_audio_features[track_id][feature] = (track_audio_features[feature] - min_audio_features[feature]) / (max_audio_features[feature] - min_audio_features[feature])
             print(track_ids_to_audio_features[track_id][feature])
 
-
-
 ### RETURN DATA ###
 
 def run_app(headers):
@@ -247,8 +234,7 @@ def run_app(headers):
     print("got user playlists")
     if playlist_response == None:
         print("Error getting user playlists")
-        return None
-    
+        return None  
     playlists, track_ids_to_find  = get_playlist_tracks(headers, playlist_response)
     artist_ids_to_find = find_track_info(headers, track_ids_to_find)
     find_artist_info(headers, artist_ids_to_find)
@@ -273,7 +259,5 @@ def run_app(headers):
                 # This might error:
                 "playlist_top_genres": json.dumps(playlist.top_genres),
             })
-            print(track_ids_to_names[playlist.top_song])
-        
+            print(track_ids_to_names[playlist.top_song])  
     return ret
-
