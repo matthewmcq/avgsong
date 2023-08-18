@@ -5,6 +5,7 @@ const theme = createTheme({
     primary: {
       main: '#0d9488', // Replace with your desired color
     },
+    background: { default: '#f1f5f9'},
   },
   components: {
     MuiCssBaseline: {

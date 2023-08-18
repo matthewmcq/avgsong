@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, Button, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router'; // Import the router hook
 import styles from '/styles/styles.module.css';
+import theme from '../../styles/theme';
+import { ThemeProvider } from '@mui/material/styles';
 
 interface PlaylistItem {
   playlist_name: string;
@@ -16,14 +18,22 @@ interface PlaylistItem {
 const YourAvg: React.FC = () => {
   const router = useRouter();
   const [playlistData, setPlaylistData] = useState<PlaylistItem[] | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // New state for loading
   const [hoveredPlaylistIndex, setHoveredPlaylistIndex] = useState<number | null>(null);
+  
   useEffect(() => {
     const jsonData = router.query.data;
 
     if (jsonData) {
       const jsonDataString = Array.isArray(jsonData) ? jsonData[0] : jsonData;
       const decodedJsonData = decodeURIComponent(jsonDataString);
-      setPlaylistData(JSON.parse(decodedJsonData) as PlaylistItem[]);
+      console.log(decodedJsonData);
+      try {
+        setPlaylistData(JSON.parse(decodedJsonData) as PlaylistItem[]);
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+      }
+      setIsLoading(false); // move this inside the condition
     }
   }, [router.query]);
 
@@ -49,14 +59,19 @@ const YourAvg: React.FC = () => {
       justifyContent="center"
       minHeight="80vh"
       textAlign="center"
+      overflow-y="scroll"
+      flex="1"
+      bgcolor={theme.palette.background.default}
     >
+      <div style={{marginTop: "0px"}}>
       <Typography variant="h3" gutterBottom>
         your
-        <span style={{ color: '#64748b' }}> avgs</span>
+        <span style={{ color: '#0d9488' }}> avgs</span>
       </Typography>
       <Typography variant="subtitle1" color="textSecondary">
         get the average song for each of your playlists
       </Typography>
+      </div>
       {playlistData ? (
       <div className={styles.playlistsContainer}>
         {playlistData.map((playlist, index) => {
@@ -87,8 +102,8 @@ const YourAvg: React.FC = () => {
                     <div className={styles.songInfo}>
                       <p>
                         {" "}
-                        <strong>"{playlist.song_name}"</strong> by{" "}
-                        <strong>"{playlist.artist}"</strong>
+                        <strong>"{playlist.song_name}"</strong> by
+                        <strong> {playlist.artist}</strong>
                       </p>
                       <p>
                         Incorporates{" "}
@@ -115,14 +130,19 @@ const YourAvg: React.FC = () => {
           })}
         </div>
       ) : (
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleAuthenticate}
-          style={{ marginTop: '20px' }}
-        >
-          authenticate with spotify
-        </Button>
+        <>
+          {/* <Typography variant="subtitle2" color="error" gutterBottom>
+            An error occurred while fetching your playlists. Please try again.
+          </Typography> */}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleAuthenticate}
+            style={{ marginTop: '20px' }}
+          >
+            authenticate with spotify
+          </Button>
+        </>
       )}
     </Box>
   );

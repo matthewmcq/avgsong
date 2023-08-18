@@ -7,6 +7,7 @@ import pandas as pd
 import json
 from queries import Tracks
 
+
 class PlaylistAPI():
     Tracks = []
     headers = None
@@ -83,8 +84,13 @@ def set_multiple_audio_features(tracks, audio_features):
 # Get users playlists:
 
 def get_playlists(headers):
-    #Limit=3 playlists for testing
-    response = requests.get("https://api.spotify.com/v1/me/playlists?limit=4", headers=headers)
+    #Limit=10 
+    # Garrett userID: https://open.spotify.com/user/31sq5dyzdr5apb5d7hyykzamiyfa?si=fte4a4mHQw6R-B8ogG4WXw
+    # Jack's: https://open.spotify.com/user/g0xuwxjyl18djkmqbhxdxz8mt?si=18118da361b24751
+    # /user/31sq5dyzdr5apb5d7hyykzamiyfa
+    # response_jack = requests.get("https://api.spotify.com/v1/users/g0xuwxjyl18djkmqbhxdxz8mt/playlists?limit=4", headers=headers)
+    # response = requests.get("https://api.spotify.com/v1/users/31sq5dyzdr5apb5d7hyykzamiyfa/playlists?limit=4", headers=headers) # Garrett
+    response = requests.get("https://api.spotify.com/v1/me/playlists?limit=10", headers=headers)
     playlists = response.json()
     return playlists
 
@@ -132,14 +138,23 @@ def collect_data(headers):
         playlist = PlaylistAPI(headers, playlist_ids[i])
         playlist.get_name()
         playlist.Tracks = process_playlist(headers, playlist_ids[i])
-        playlists.append(playlist)
+        if playlist.Tracks != []:
+            playlists.append(playlist)
     return playlists
     
 def process_playlist(headers, playlist_id):
     print("Processing playlist: " + playlist_id)
     tracks = get_tracks(playlist_id, headers)
-    track_ids = [track["track"]["id"] for track in tracks["items"]]
-    track_artist_ids = [track["track"]["artists"][0]["id"] for track in tracks["items"]]
+    if not tracks:
+        return []
+    if not tracks["items"]:
+        return []
+    
+    try:
+        track_ids = [track["track"]["id"] for track in tracks["items"]]
+        track_artist_ids = [track["track"]["artists"][0]["id"] for track in tracks["items"]]
+    except:
+        return []
     track_audio_features = {}
     # get_multiple_audio_features for 100 tracks at a time
     for i in range(0, len(track_ids), 100):
@@ -218,6 +233,7 @@ def feature_weighting(track, avg_features):
     return weight
 
 def find_closest(playlist):
+
     #playlists = collect_data(playlist.headers)
     average_features = avg_features(playlist.Tracks)
     #print(average_features)
@@ -230,20 +246,36 @@ def find_closest(playlist):
             track.overall_weighting = track.genre_weighting * 1 / track.feature_weighting
         except: 
             track.overall_weighting = 0
+    # try:
     playlist.Tracks.sort(key=lambda x: x.overall_weighting, reverse=True)
     playlist.Tracks[0].song_name = find_name(playlist.Tracks[0].track_id, playlist.headers)
     playlist.Tracks[0].artist = find_artist(playlist.Tracks[0].track_id, playlist.headers)
     print("Closest for " + playlist.playlist_name + ": " + playlist.Tracks[0].song_name + " by " + playlist.Tracks[0].artist)
     return playlist
+    # except:
+    #     return playlist
 
 def find_name(track_id, headers):
-    response = requests.get("https://api.spotify.com/v1/tracks/" + track_id, headers=headers)
-    track_name = response.json()["name"]
-    return track_name
-
+        response = requests.get("https://api.spotify.com/v1/tracks/" + track_id, headers=headers)
+        try:
+            track_name = response.json()["name"]
+        except:
+            print("Error finding name for track: " + track_id)
+            track_name = track_id
+        return track_name 
+        
 def find_artist(track_id, headers):
     response = requests.get("https://api.spotify.com/v1/tracks/" + track_id, headers=headers)
-    track_artist = response.json()["artists"][0]["name"]
+    try:
+        track_artist = response.json()["artists"][0]["name"]
+    except:
+        print("Error finding artist for track: " + track_id)
+        try:
+            
+            track_artist = response.json()["name"]
+        except:
+            print("Error again")
+            track_artist = track_id
     return track_artist
 
 def find_all_closest(headers):
@@ -252,6 +284,9 @@ def find_all_closest(headers):
     for playlist in playlists:
         print("Finding closest song for " + playlist.playlist_name + "...")
         playlist = find_closest(playlist)
+        if not playlist.Tracks[0].song_name:
+            print("No song name for " + playlist.playlist_name)
+            playlists.remove(playlist)
     return playlists
 
 def print_all_closest(headers):
@@ -266,6 +301,12 @@ def return_all_closest_as_json(headers):
     ret = []
     for playlist in playlists:
         #This could be optimized and done during weight genres
+        if not playlist.Tracks[0].song_name:
+            print("No song name for " + playlist.playlist_name)
+            continue
+        if not playlist.genre_weights:
+            print("No genre weights for " + playlist.playlist_name)
+            continue
         genres_to_copy = playlist.genre_weights
         genres = genres_to_copy.copy()
         ### Top three genres: 
@@ -284,4 +325,41 @@ def return_all_closest_as_json(headers):
             "playlist_genre_count": total_genre_count,
             "playlist_top_genres": json.dumps(max_genres)
         })
+        print(total_genre_count)
     return ret
+
+    # Optimization plans to minimizae calls to spotify API:
+    # Get all the playlists at once, then make dict of track_ids to look up and map them to the playlist(s) they belong to
+    # make a dict of artist IDs to get genres for, then make a call to get all the genres for all the artists at once(?)
+    # get audio features for as many tracks as possible at once and make another hashmap with track_ids -> audio features
+    # Hashmaps (can clean up):
+    # track_ids -> playlist(s)
+    # track_ids -> artist_ids
+    # artist_ids -> genres
+    # artist_ids -> atrist_names
+    # track_ids -> audio features
+    # Then change process tracks to go trough something like:
+    # for tracks in dict:
+    #   for playlist in track_id in track_ids -> playlist(s):
+    #       genres = artist_ids -> genres
+    #       add genres to that playlists playlist_genres dict and increment as necessary
+    #       add audio features to that playlists playlist_audio_features total and increment as necessary
+    #       add track to that playlists playlist_tracks
+    # Then go through each playlist and calculate the average audio features / len(tracks) and genre weights
+    # Then go through tracks to find closest song and sort playlist.tracks to find closest song
+    # Then get song name (GET request) and artist name from hashmap
+
+    """ 
+        New functions (DATA RETRIEVAL) TODO: 
+        First: needs a get_playlists function that returns the JSON of all a users playlists (do this separate so the analyze function TODO can be called on it when times come sto make that)
+        Second: Keep track of playlist_image (hashmap?), then find all track_ids + artist_ids (50 at a time, might need to use next page) (if not in hashmap already) for all playlists and make a hashmap of track_ids -> playlist(s) and track_ids -> artist_ids (same call) - (ignore a playlist if fewer than 10 songs)
+        Third: Get genres + artist names (max 50 per call) for all artists not in dict and make a hashmap of artist_ids -> genres and artist_ids -> artist_names
+        (DATA PROCESSING) TODO:
+        Go through each track in track_id dict and add it to corresponding playlist.tracks, add its audio features to that of the playlist, 
+            increment total genres, and add its genres to that of the playlist vis a vie the artist_ids -> genres hashmap
+        Go through each playlist and calculate the average audio features / len(tracks) and genre weights (genres[genre]/total_genres) (during genre weights can calso calculate top 3 genres)
+        Go through tracks to find closest song and sort playlist.tracks to find closest song
+        Get song name + image url (GET request) and artist name from hashmap
+        (SENDING DATA): TODO
+        Send back playlist name, closest song name, closest song artist, playlist image, genre count, and top 3 genres as JSON
+            """

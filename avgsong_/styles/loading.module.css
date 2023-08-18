@@ -1,0 +1,20 @@
+.message-container {
+    margin: 8px 0;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.indented {
+    margin-left: 20px;
+}
+
+.progress-bar {
+    background-color: #e0e0e0;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.filled-bar {
+    background-color: #4caf50;
+    height: 100%;
+}

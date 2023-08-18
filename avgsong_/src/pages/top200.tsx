@@ -16481,14 +16481,34 @@ const topSongsData: Record<string, SongData[]> = {
   );
 
   return (
+   <Box
+   display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      minHeight="80vh"
+      textAlign="center"
+      flex="1"
+   >
     <div>
+      <div style={{marginTop: "20px"}}>
+      <Typography variant="h3" gutterBottom>
+        billboard top-200 album
+        <span style={{ color: '#0d9488' }}> avgs</span>
+      </Typography>
+      <Typography variant="subtitle1" color="textSecondary">
+        of the 200 best-selling albums (not necessarily released) in a given year, these songs are the "most average"
+      </Typography>
+      </div>
       {Object.keys(topSongsData)
         .sort((a, b) => Number(b) - Number(a))
         .map((year) => (
-          <div key={year} className={styles.yearContainer}>
-
-            <Typography variant="h4">{year}</Typography>
-            <div className={styles.yearWrapper}>
+          <div key={year} className={styles.yearContainer} style={{alignItems: "left", color: "#f3f4f6"}}>
+            <div className={styles.headingBar}>
+            <div style={{flex: "1", marginLeft: "15px"}}>
+            <Typography variant="h4" color="#f3f4f6">{year}</Typography>
+            </div>
+            </div>
             <div className={styles.albumContainer}>
               {topSongsData[year].map((song, albumIndex) => (
                 <div
@@ -16520,10 +16540,11 @@ const topSongsData: Record<string, SongData[]> = {
                 </div>
               ))}
             </div>
-            </div>
+            
           </div>
         ))}
     </div>
+    </Box>
   );
 };
 
