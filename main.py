@@ -17,8 +17,8 @@ import processing
 import json
 import urllib
 
-client_id = "76b3fdfd1fa14dcaba99c20d2a9a6cd6" #"54d0f71b09ad478b8cc5647fbd3849b5" #"b858f069ec524253abe1015d52cfcc5d" #"15bbf420b29e47a6bf67e58a88423900" #"b858f069ec524253abe1015d52cfcc5d" #
-client_secret = "c5e9073ecf3542a58cf256dba1eca527" # "4181692edccb4f39ad7da0c64b06933a" #"39401123204849138c685db0f4a6ef8a" #"5d7d9beffa564fa7aa41e505120b2882" #"39401123204849138c685db0f4a6ef8a"#
+client_id = "CLIENT_ID"
+client_secret = "CLIENT_SECRET"
 redirect_uri = "http://localhost:8000/callback"
 # client_id = "YOUR_CLIENT_ID"
 # client_secret = "YOUR_CLIENT_SECRET"
